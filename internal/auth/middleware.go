@@ -3,10 +3,10 @@ package auth
 import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/garaekz/priv8/internal/entity"
+	"github.com/garaekz/priv8/internal/errors"
 	routing "github.com/go-ozzo/ozzo-routing/v2"
 	"github.com/go-ozzo/ozzo-routing/v2/auth"
-	"github.com/qiangxue/go-rest-api/internal/entity"
-	"github.com/qiangxue/go-rest-api/internal/errors"
 	"net/http"
 )
 

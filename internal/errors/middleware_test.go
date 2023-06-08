@@ -3,9 +3,9 @@ package errors
 import (
 	"database/sql"
 	"fmt"
+	"github.com/garaekz/priv8/pkg/log"
 	routing "github.com/go-ozzo/ozzo-routing/v2"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/qiangxue/go-rest-api/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"

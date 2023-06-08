@@ -1,9 +1,9 @@
 package config
 
 import (
+	"github.com/garaekz/priv8/pkg/log"
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/qiangxue/go-env"
-	"github.com/qiangxue/go-rest-api/pkg/log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )

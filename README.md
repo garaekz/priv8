@@ -1,9 +1,9 @@
 # Priv8
 
-[![GoDoc](https://godoc.org/github.com/qiangxue/go-rest-api?status.png)](http://godoc.org/github.com/qiangxue/go-rest-api)
-[![Build Status](https://github.com/qiangxue/go-rest-api/workflows/build/badge.svg)](https://github.com/qiangxue/go-rest-api/actions?query=workflow%3Abuild)
-[![Code Coverage](https://codecov.io/gh/qiangxue/go-rest-api/branch/master/graph/badge.svg)](https://codecov.io/gh/qiangxue/go-rest-api)
-[![Go Report](https://goreportcard.com/badge/github.com/qiangxue/go-rest-api)](https://goreportcard.com/report/github.com/qiangxue/go-rest-api)
+[![GoDoc](https://godoc.org/github.com/garaekz/priv8/internal/?status.png)](http://godoc.org/github.com/garaekz/priv8/internal/)
+[![Build Status](https://github.com/garaekz/priv8/internal//workflows/build/badge.svg)](https://github.com/garaekz/priv8/internal//actions?query=workflow%3Abuild)
+[![Code Coverage](https://codecov.io/gh/garaekz/priv8/internal//branch/master/graph/badge.svg)](https://codecov.io/gh/garaekz/priv8/internal/)
+[![Go Report](https://goreportcard.com/badge/github.com/garaekz/priv8/internal/)](https://goreportcard.com/report/github.com/garaekz/priv8/internal/)
 
 This starter kit is designed to get you up and running with a project structure optimized for developing
 RESTful API services in Go. It promotes the best practices that follow the [SOLID principles](https://en.wikipedia.org/wiki/SOLID)
@@ -45,7 +45,7 @@ After installing Go and Docker, run the following commands to start experiencing
 
 ```shell
 # download the starter kit
-git clone https://github.com/qiangxue/go-rest-api.git
+git clone https://github.com/garaekz/priv8/internal/.git
 
 cd go-rest-api
 
@@ -89,7 +89,7 @@ curl -X GET -H "Authorization: Bearer ...JWT token here..." http://localhost:808
 ```
 
 To use the starter kit as a starting point of a real project whose package name is `github.com/abc/xyz`, do a global 
-replacement of the string `github.com/qiangxue/go-rest-api` in all of project files with the string `github.com/abc/xyz`.
+replacement of the string `github.com/garaekz/priv8/internal/` in all of project files with the string `github.com/abc/xyz`.
 
 
 ## Project Layout

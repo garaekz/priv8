@@ -2,9 +2,9 @@ package album
 
 import (
 	"context"
+	"github.com/garaekz/priv8/internal/entity"
+	"github.com/garaekz/priv8/pkg/log"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/qiangxue/go-rest-api/internal/entity"
-	"github.com/qiangxue/go-rest-api/pkg/log"
 	"time"
 )
 

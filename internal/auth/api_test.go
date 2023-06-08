@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"github.com/qiangxue/go-rest-api/internal/errors"
-	"github.com/qiangxue/go-rest-api/internal/test"
-	"github.com/qiangxue/go-rest-api/pkg/log"
+	"github.com/garaekz/priv8/internal/errors"
+	"github.com/garaekz/priv8/internal/test"
+	"github.com/garaekz/priv8/pkg/log"
 	"net/http"
 	"testing"
 )

@@ -1,10 +1,10 @@
 package album
 
 import (
+	"github.com/garaekz/priv8/internal/errors"
+	"github.com/garaekz/priv8/pkg/log"
+	"github.com/garaekz/priv8/pkg/pagination"
 	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/qiangxue/go-rest-api/internal/errors"
-	"github.com/qiangxue/go-rest-api/pkg/log"
-	"github.com/qiangxue/go-rest-api/pkg/pagination"
 	"net/http"
 )
 
