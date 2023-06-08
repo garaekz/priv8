@@ -2,10 +2,11 @@ package album
 
 import (
 	"context"
+	"time"
+
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/pkg/log"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"time"
 )
 
 // Service encapsulates usecase logic for albums.

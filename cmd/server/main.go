@@ -5,6 +5,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/garaekz/priv8/internal/album"
 	"github.com/garaekz/priv8/internal/auth"
 	"github.com/garaekz/priv8/internal/config"
@@ -13,14 +17,11 @@ import (
 	"github.com/garaekz/priv8/pkg/accesslog"
 	"github.com/garaekz/priv8/pkg/dbcontext"
 	"github.com/garaekz/priv8/pkg/log"
-	"github.com/go-ozzo/ozzo-dbx"
-	"github.com/go-ozzo/ozzo-routing/v2"
+	dbx "github.com/go-ozzo/ozzo-dbx"
+	routing "github.com/go-ozzo/ozzo-routing/v2"
 	"github.com/go-ozzo/ozzo-routing/v2/content"
 	"github.com/go-ozzo/ozzo-routing/v2/cors"
 	_ "github.com/lib/pq"
-	"net/http"
-	"os"
-	"time"
 )
 
 // Version indicates the current version of the application.
@@ -83,7 +84,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	healthcheck.RegisterHandlers(router, Version)
 
-	rg := router.Group("/v1")
+	rg := router.Group("/api/v1")
 
 	authHandler := auth.Handler(cfg.JWTSigningKey)
 

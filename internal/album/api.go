@@ -1,11 +1,12 @@
 package album
 
 import (
+	"net/http"
+
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/pkg/log"
 	"github.com/garaekz/priv8/pkg/pagination"
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"net/http"
+	routing "github.com/go-ozzo/ozzo-routing/v2"
 )
 
 // RegisterHandlers sets up the routing of the HTTP handlers.
