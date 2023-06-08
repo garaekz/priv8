@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"testing"
+
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/pkg/log"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var errCRUD = errors.New("error crud")
@@ -128,7 +129,7 @@ type mockRepository struct {
 	items []entity.Album
 }
 
-func (m mockRepository) Get(ctx context.Context, id string) (entity.Album, error) {
+func (m mockRepository) Get(_ context.Context, id string) (entity.Album, error) {
 	for _, item := range m.items {
 		if item.ID == id {
 			return item, nil
@@ -137,15 +138,15 @@ func (m mockRepository) Get(ctx context.Context, id string) (entity.Album, error
 	return entity.Album{}, sql.ErrNoRows
 }
 
-func (m mockRepository) Count(ctx context.Context) (int, error) {
+func (m mockRepository) Count(_ context.Context) (int, error) {
 	return len(m.items), nil
 }
 
-func (m mockRepository) Query(ctx context.Context, offset, limit int) ([]entity.Album, error) {
+func (m mockRepository) Query(_ context.Context, _, _ int) ([]entity.Album, error) {
 	return m.items, nil
 }
 
-func (m *mockRepository) Create(ctx context.Context, album entity.Album) error {
+func (m *mockRepository) Create(_ context.Context, album entity.Album) error {
 	if album.Name == "error" {
 		return errCRUD
 	}
@@ -153,7 +154,7 @@ func (m *mockRepository) Create(ctx context.Context, album entity.Album) error {
 	return nil
 }
 
-func (m *mockRepository) Update(ctx context.Context, album entity.Album) error {
+func (m *mockRepository) Update(_ context.Context, album entity.Album) error {
 	if album.Name == "error" {
 		return errCRUD
 	}
@@ -166,7 +167,7 @@ func (m *mockRepository) Update(ctx context.Context, album entity.Album) error {
 	return nil
 }
 
-func (m *mockRepository) Delete(ctx context.Context, id string) error {
+func (m *mockRepository) Delete(_ context.Context, id string) error {
 	for i, item := range m.items {
 		if item.ID == id {
 			m.items[i] = m.items[len(m.items)-1]
