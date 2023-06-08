@@ -2,16 +2,17 @@ package auth
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/internal/test"
 	"github.com/garaekz/priv8/pkg/log"
-	"net/http"
-	"testing"
 )
 
 type mockService struct{}
 
-func (m mockService) Login(ctx context.Context, username, password string) (string, error) {
+func (mockService) Login(_ context.Context, username, password string) (string, error) {
 	if username == "test" && password == "pass" {
 		return "token-100", nil
 	}

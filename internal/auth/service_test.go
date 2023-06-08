@@ -2,14 +2,15 @@ package auth
 
 import (
 	"context"
+	"testing"
+
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/pkg/log"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-func Test_service_Authenticate(t *testing.T) {
+func Test_service_Login(t *testing.T) {
 	logger, _ := log.NewForTest()
 	s := NewService("test", 100, logger)
 	_, err := s.Login(context.Background(), "unknown", "bad")
