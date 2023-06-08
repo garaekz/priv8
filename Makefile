@@ -64,7 +64,7 @@ version: ## display the version of the API server
 .PHONY: db-start
 db-start: ## start the database server
 	@mkdir -p testdata/postgres
-	docker run --rm --name postgres -v $(shell pwd)/testdata:/testdata \
+	docker run --rm --name postgres-priv8 -v $(shell pwd)/testdata:/testdata \
 		-v $(shell pwd)/testdata/postgres:/var/lib/postgresql/data \
 		-e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go_restful -d -p 5432:5432 postgres
 
@@ -74,9 +74,10 @@ db-stop: ## stop the database server
 
 .PHONY: testdata
 testdata: ## populate the database with test data
+	@echo $(MIGRATE)
 	make migrate-reset
 	@echo "Populating test data..."
-	@docker exec -it postgres psql "$(APP_DSN)" -f /testdata/testdata.sql
+	@docker exec -it postgres-priv8 psql "$(APP_DSN)" -f /testdata/testdata.sql
 
 .PHONY: lint
 lint: ## run golint on all Go package
