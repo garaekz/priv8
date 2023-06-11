@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAPI(t *testing.T) {
+func TestSecretsAPI(t *testing.T) {
 	logger, _ := log.NewForTest()
 	router := test.MockRouter(logger)
 	salt := "test"
@@ -31,20 +31,20 @@ func TestAPI(t *testing.T) {
 			Name:       "create ok",
 			Method:     "POST",
 			URL:        "/secrets",
-			Body:       `{"content":"correct data"}`,
+			Body:       `{"secret":"correct data", "ttl":300}`,
 			Header:     header,
 			WantStatus: http.StatusCreated,
 			AssertFunc: func(t *testing.T, res *http.Response) {
 				bodyBytes, _ := ioutil.ReadAll(res.Body)
 				var body map[string]interface{}
 				_ = json.Unmarshal(bodyBytes, &body)
-				assert.NotEmpty(t, body["id"])
-				assert.NotEmpty(t, body["encrypted_data"])
-				assert.NotEmpty(t, body["ttl"])
-				assert.Equal(t, 60.0, body["ttl"])
+				assert.NotEmpty(t, body["code"])
+				assert.NotEmpty(t, body["secret"])
+				assert.Equal(t, "correct data", body["secret"])
+				assert.NotEmpty(t, body["expires_at"])
 			},
 		},
-		{Name: "create input error", Method: "POST", URL: "/secrets", Body: `"content":"test"}`, Header: header, WantStatus: http.StatusBadRequest, WantResponse: ""},
+		{Name: "create input error", Method: "POST", URL: "/secrets", Body: `"secret":"test"}`, Header: header, WantStatus: http.StatusBadRequest, WantResponse: ""},
 		// {Name: "create auth error", Method: "POST", URL: "/secrets", Body: `{"content":"test"}`, Header: nil, WantStatus: http.StatusUnauthorized, WantResponse: ""},
 		// {Name: "get all", Method: "GET", URL: "/secrets", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `*"total_count":1*`},
 		// {Name: "update ok", Method: "PUT", URL: "/secrets/123", Body: `{"name":"secretxyz"}`, Header: header, WantStatus: http.StatusOK, WantResponse: "*secretxyz*"},

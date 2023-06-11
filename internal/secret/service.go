@@ -2,6 +2,7 @@ package secret
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/fernet/fernet-go"
@@ -11,11 +12,16 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
+const (
+	// MinTTL is the minimum TTL allowed for a secret.
+	MinTTL = 5 * time.Minute
+)
+
 // Service encapsulates usecase logic for secrets.
 type Service interface {
 	Get(ctx context.Context, id string) (Secret, error)
 	ReadAndBurn(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error)
-	Create(ctx context.Context, input CreateSecretRequest) (Secret, error)
+	Create(ctx context.Context, input CreateSecretRequest) (CreateSecretResponse, error)
 	Delete(ctx context.Context, id string) (Secret, error)
 	Count(ctx context.Context) (int, error)
 }
@@ -34,16 +40,32 @@ type DecodedSecret struct {
 
 // CreateSecretRequest represents an secret creation request.
 type CreateSecretRequest struct {
-	Content        string  `json:"content"`
-	Passphrase     string  `json:"passphrase"`
-	ExpirationTime *string `json:"expiration_time"`
+	Secret     string `json:"secret"`
+	Passphrase string `json:"passphrase"`
+	TTL        int    `json:"ttl"`
+}
+
+// CreateSecretResponse represents an secret creation response.
+type CreateSecretResponse struct {
+	Code      string `json:"code"`
+	Secret    string `json:"secret"`
+	ExpiresAt string `json:"expires_at"`
 }
 
 // Validate validates the CreateSecretRequest fields.
 func (m CreateSecretRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Content, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Secret, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.TTL, validation.Required, validation.By(validateTTL)),
 	)
+}
+
+func validateTTL(value interface{}) error {
+	ttl := value.(int)
+	if ttl < int(MinTTL.Seconds()) {
+		return validation.NewError("ttl", "TTL must be greater than 5 minutes")
+	}
+	return nil
 }
 
 // ReadSecretRequest represents an secret reading request.
@@ -81,7 +103,7 @@ func (s service) ReadAndBurn(ctx context.Context, id string, req ReadSecretReque
 	ttl := time.Duration(secret.TTL) * time.Second
 	message := fernet.VerifyAndDecrypt([]byte(secret.EncryptedData), ttl, []*fernet.Key{&key})
 	if message == nil {
-		return DecodedSecret{Code: 404, Error: "Invalid token or token has expired"}, nil
+		return DecodedSecret{Code: 404, Error: "Invalid token or token has expired"}, errors.New("Invalid token or token has expired")
 	}
 
 	// Burn the secret
@@ -93,32 +115,35 @@ func (s service) ReadAndBurn(ctx context.Context, id string, req ReadSecretReque
 }
 
 // Create creates a new secret.
-func (s service) Create(ctx context.Context, req CreateSecretRequest) (Secret, error) {
+func (s service) Create(ctx context.Context, req CreateSecretRequest) (CreateSecretResponse, error) {
 	if err := req.Validate(); err != nil {
-		return Secret{}, err
+		return CreateSecretResponse{}, err
 	}
 	id := entity.GenerateID()
 	now := time.Now()
 	key := encrypt.EncodeKey(req.Passphrase, s.salt)
-	token, err := fernet.EncryptAndSign([]byte(req.Content), &key)
+	token, err := fernet.EncryptAndSign([]byte(req.Secret), &key)
 	if err != nil {
-		return Secret{}, err
+		return CreateSecretResponse{}, err
 	}
-	// TTL is now a constant of 60 seconds, this will be changed in the near future
-	ttl := 60 * time.Second
+
 	err = s.repo.Create(ctx, entity.Secret{
 		ID:            id,
 		EncryptedData: string(token),
-		TTL:           int(ttl.Seconds()),
+		TTL:           req.TTL,
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	})
 
 	if err != nil {
-		return Secret{}, err
+		return CreateSecretResponse{}, err
 	}
 
-	return s.Get(ctx, id)
+	return CreateSecretResponse{
+		Code:      id,
+		Secret:    req.Secret,
+		ExpiresAt: now.Add(time.Duration(req.TTL) * time.Second).Format(time.RFC3339),
+	}, nil
 }
 
 // Delete deletes the secret with the specified ID.
