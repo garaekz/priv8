@@ -81,6 +81,8 @@ func Test_service_CRUD(t *testing.T) {
 	assert.Equal(t, 1, count)
 
 	_, _ = s.Create(ctx, CreateSecretRequest{Secret: "test2", TTL: 5000})
+	count, _ = s.Count(ctx)
+	assert.Equal(t, 2, count)
 
 	// get
 	_, err = s.Get(ctx, "none")
@@ -108,28 +110,25 @@ func Test_service_ReadAndBurn(t *testing.T) {
 
 	t.Run("secret doesn't exist or was already read", func(t *testing.T) {
 		res, err := s.ReadAndBurn(ctx, "nonexistent", ReadSecretRequest{Passphrase: "pass"})
-		assert.Nil(t, err)
+		assert.NotNil(t, err)
 		assert.Equal(t, 404, res.Code)
 		assert.Equal(t, "Secret doesn't exist or was already read", res.Error)
 	})
 
 	t.Run("invalid token or token has expired", func(t *testing.T) {
 		// Create a secret with a very short TTL
-		secret, err := s.Create(ctx, CreateSecretRequest{Secret: "test", TTL: 1})
-		assert.NotNil(t, err)
+		secret, err := s.Create(ctx, CreateSecretRequest{Secret: "test", TTL: 300})
+		assert.Nil(t, err)
 		if vErr, ok := err.(validation.Errors); ok {
 			assert.Equal(t, errTTL, vErr["ttl"])
 		} else {
 			t.Fail()
 		}
 
-		// Wait for the secret to expire
-		time.Sleep(2 * time.Second)
-
 		res, err := s.ReadAndBurn(ctx, secret.Code, ReadSecretRequest{Passphrase: "pass"})
-		assert.Nil(t, err)
+		assert.NotNil(t, err)
 		assert.Equal(t, 404, res.Code)
-		assert.Equal(t, "Secret doesn't exist or was already read", res.Error)
+		assert.Equal(t, "Invalid token or token has expired", res.Error)
 	})
 
 	t.Run("success", func(t *testing.T) {
@@ -143,13 +142,20 @@ func Test_service_ReadAndBurn(t *testing.T) {
 	})
 
 	t.Run("error deleting", func(t *testing.T) {
-		// Create a secret with a TTL that triggers an error in the mock repository
-		secret, err := s.Create(ctx, CreateSecretRequest{Secret: "test", TTL: 9876543210})
+		res, err := s.ReadAndBurn(ctx, "test", ReadSecretRequest{Passphrase: "pass"})
 		assert.NotNil(t, err)
-
-		res, err := s.ReadAndBurn(ctx, secret.Code, ReadSecretRequest{Passphrase: "pass"})
-		assert.Nil(t, err)
 		assert.Empty(t, res.Message)
+	})
+
+	t.Run("error burning after reading", func(t *testing.T) {
+		// Create a secret
+		secret, err := s.Create(ctx, CreateSecretRequest{Secret: "test message", TTL: 999, Passphrase: "test"})
+		assert.Nil(t, err)
+		assert.NotEmpty(t, secret.Code)
+
+		_, err = s.ReadAndBurn(ctx, "error", ReadSecretRequest{Passphrase: "test"})
+		assert.NotNil(t, err)
+		assert.Equal(t, errCRUD, err)
 	})
 }
 
@@ -157,7 +163,7 @@ type mockRepository struct {
 	items []entity.Secret
 }
 
-func (m mockRepository) Get(_ context.Context, id string) (entity.Secret, error) {
+func (m *mockRepository) Get(_ context.Context, id string) (entity.Secret, error) {
 	for _, item := range m.items {
 		if item.ID == id {
 			return item, nil
@@ -166,7 +172,7 @@ func (m mockRepository) Get(_ context.Context, id string) (entity.Secret, error)
 	return entity.Secret{}, sql.ErrNoRows
 }
 
-func (m mockRepository) Count(_ context.Context) (int, error) {
+func (m *mockRepository) Count(_ context.Context) (int, error) {
 	return len(m.items), nil
 }
 
@@ -174,11 +180,18 @@ func (m *mockRepository) Create(_ context.Context, secret entity.Secret) error {
 	if secret.TTL == 9876543210 {
 		return errCRUD
 	}
+	if secret.TTL == 999 {
+		secret.ID = "error"
+	}
 	m.items = append(m.items, secret)
 	return nil
 }
 
 func (m *mockRepository) Delete(_ context.Context, id string) error {
+	if id == "error" {
+		return errCRUD
+	}
+
 	for i, item := range m.items {
 		if item.ID == id {
 			m.items[i] = m.items[len(m.items)-1]

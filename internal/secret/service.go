@@ -96,7 +96,7 @@ func (s service) Get(ctx context.Context, id string) (Secret, error) {
 func (s service) ReadAndBurn(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error) {
 	secret, err := s.repo.Get(ctx, id)
 	if err != nil {
-		return DecodedSecret{Code: 404, Error: "Secret doesn't exist or was already read"}, nil
+		return DecodedSecret{Code: 404, Error: "Secret doesn't exist or was already read"}, err
 	}
 
 	key := encrypt.EncodeKey(req.Passphrase, s.salt)

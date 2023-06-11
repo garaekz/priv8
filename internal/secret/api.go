@@ -17,11 +17,11 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Post("/secrets/<id>", res.readAndBurn)
 
 	r.Use(authHandler)
+	r.Delete("/secrets/<id>", res.delete)
 
 	// the following endpoints require a valid JWT
 	// r.Get("/secrets", res.query)
 	// r.Put("/secrets/<id>", res.update)
-	// r.Delete("/secrets/<id>", res.delete)
 }
 
 type resource struct {
