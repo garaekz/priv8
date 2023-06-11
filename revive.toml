@@ -34,7 +34,7 @@ warningCode = 1
 [rule.unused-receiver]
 [rule.unhandled-error]
 [rule.import-shadowing]
-[rule.empty-lines]
+# [rule.empty-lines]
 [rule.waitgroup-by-value]
 [rule.range-val-address]
 [rule.range-val-in-closure]
