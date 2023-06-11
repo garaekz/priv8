@@ -8,7 +8,7 @@ import (
 type Secret struct {
 	ID            string    `json:"id"`
 	TTL           int       `json:"ttl"`
-	EncryptedData string    `json:"ecnrypted_data"`
+	EncryptedData string    `json:"encrypted_data"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

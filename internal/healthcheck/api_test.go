@@ -1,10 +1,11 @@
 package healthcheck
 
 import (
-	"github.com/garaekz/priv8/internal/test"
-	"github.com/garaekz/priv8/pkg/log"
 	"net/http"
 	"testing"
+
+	"github.com/garaekz/priv8/internal/test"
+	"github.com/garaekz/priv8/pkg/log"
 )
 
 func TestAPI(t *testing.T) {
@@ -12,6 +13,6 @@ func TestAPI(t *testing.T) {
 	router := test.MockRouter(logger)
 	RegisterHandlers(router, "0.9.0")
 	test.Endpoint(t, router, test.APITestCase{
-		"ok", "GET", "/healthcheck", "", nil, http.StatusOK, `"OK 0.9.0"`,
+		Name: "ok", Method: "GET", URL: "/healthcheck", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `"OK 0.9.0"`,
 	})
 }

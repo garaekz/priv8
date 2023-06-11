@@ -2,15 +2,17 @@ package test
 
 import (
 	"bytes"
-	routing "github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	routing "github.com/go-ozzo/ozzo-routing/v2"
+	"github.com/stretchr/testify/assert"
 )
 
-// APITestCase represents the data needed to describe an API test case.
+type ResponseAssertFunc func(*testing.T, *http.Response)
+
 type APITestCase struct {
 	Name         string
 	Method, URL  string
@@ -18,6 +20,7 @@ type APITestCase struct {
 	Header       http.Header
 	WantStatus   int
 	WantResponse string
+	AssertFunc   ResponseAssertFunc // Custom response assertion function
 }
 
 // Endpoint tests an HTTP endpoint using the given APITestCase spec.
@@ -40,6 +43,10 @@ func Endpoint(t *testing.T, router *routing.Router, tc APITestCase) {
 			} else {
 				assert.JSONEq(t, tc.WantResponse, res.Body.String(), "response mismatch")
 			}
+		}
+
+		if tc.AssertFunc != nil {
+			tc.AssertFunc(t, res.Result())
 		}
 	})
 }

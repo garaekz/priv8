@@ -14,7 +14,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 
 	r.Post("/secrets", res.create)
 	r.Get("/secrets/<id>", res.get)
-	r.Post("/secrets/<id>", res.read)
+	r.Post("/secrets/<id>", res.readAndBurn)
 
 	r.Use(authHandler)
 
@@ -38,13 +38,13 @@ func (r resource) get(c *routing.Context) error {
 	return c.Write(secret)
 }
 
-func (r resource) read(c *routing.Context) error {
+func (r resource) readAndBurn(c *routing.Context) error {
 	var input ReadSecretRequest
 	if err := c.Read(&input); err != nil {
 		r.logger.With(c.Request.Context()).Info(err)
 		return errors.BadRequest("")
 	}
-	secret, err := r.service.Read(c.Request.Context(), c.Param("id"), input)
+	secret, err := r.service.ReadAndBurn(c.Request.Context(), c.Param("id"), input)
 	if err != nil {
 		return err
 	}

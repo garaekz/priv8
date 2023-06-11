@@ -14,7 +14,7 @@ import (
 // Service encapsulates usecase logic for secrets.
 type Service interface {
 	Get(ctx context.Context, id string) (Secret, error)
-	Read(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error)
+	ReadAndBurn(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error)
 	Create(ctx context.Context, input CreateSecretRequest) (Secret, error)
 	Delete(ctx context.Context, id string) (Secret, error)
 	Count(ctx context.Context) (int, error)
@@ -71,7 +71,7 @@ func (s service) Get(ctx context.Context, id string) (Secret, error) {
 	return Secret{secret}, nil
 }
 
-func (s service) Read(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error) {
+func (s service) ReadAndBurn(ctx context.Context, id string, req ReadSecretRequest) (DecodedSecret, error) {
 	secret, err := s.repo.Get(ctx, id)
 	if err != nil {
 		return DecodedSecret{Code: 404, Error: "Secret doesn't exist or was already read"}, nil
@@ -82,6 +82,11 @@ func (s service) Read(ctx context.Context, id string, req ReadSecretRequest) (De
 	message := fernet.VerifyAndDecrypt([]byte(secret.EncryptedData), ttl, []*fernet.Key{&key})
 	if message == nil {
 		return DecodedSecret{Code: 404, Error: "Invalid token or token has expired"}, nil
+	}
+
+	// Burn the secret
+	if err = s.repo.Delete(ctx, id); err != nil {
+		return DecodedSecret{}, err
 	}
 
 	return DecodedSecret{Message: string(message)}, nil
@@ -112,6 +117,7 @@ func (s service) Create(ctx context.Context, req CreateSecretRequest) (Secret, e
 	if err != nil {
 		return Secret{}, err
 	}
+
 	return s.Get(ctx, id)
 }
 

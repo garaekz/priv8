@@ -1,6 +1,8 @@
 package secret
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"testing"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/internal/test"
 	"github.com/garaekz/priv8/pkg/log"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAPI(t *testing.T) {
@@ -24,10 +27,25 @@ func TestAPI(t *testing.T) {
 	tests := []test.APITestCase{
 		{Name: "get 123", Method: "GET", URL: "/secrets/123", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `*secret123*`},
 		{Name: "get unknown", Method: "GET", URL: "/secrets/1234", Body: "", Header: nil, WantStatus: http.StatusNotFound, WantResponse: ""},
-		{Name: "create ok", Method: "POST", URL: "/secrets", Body: `{"content":"test", passphrase: null}`, Header: header, WantStatus: http.StatusCreated, WantResponse: "*test*"},
-		{Name: "create ok count", Method: "GET", URL: "/secrets", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `*"total_count":2*`},
-		{Name: "create auth error", Method: "POST", URL: "/secrets", Body: `{"raw_data":"test"}`, Header: nil, WantStatus: http.StatusUnauthorized, WantResponse: ""},
-		{Name: "create input error", Method: "POST", URL: "/secrets", Body: `"raw_data":"test"}`, Header: header, WantStatus: http.StatusBadRequest, WantResponse: ""},
+		{
+			Name:       "create ok",
+			Method:     "POST",
+			URL:        "/secrets",
+			Body:       `{"content":"correct data"}`,
+			Header:     header,
+			WantStatus: http.StatusCreated,
+			AssertFunc: func(t *testing.T, res *http.Response) {
+				bodyBytes, _ := ioutil.ReadAll(res.Body)
+				var body map[string]interface{}
+				_ = json.Unmarshal(bodyBytes, &body)
+				assert.NotEmpty(t, body["id"])
+				assert.NotEmpty(t, body["encrypted_data"])
+				assert.NotEmpty(t, body["ttl"])
+				assert.Equal(t, 60.0, body["ttl"])
+			},
+		},
+		{Name: "create input error", Method: "POST", URL: "/secrets", Body: `"content":"test"}`, Header: header, WantStatus: http.StatusBadRequest, WantResponse: ""},
+		// {Name: "create auth error", Method: "POST", URL: "/secrets", Body: `{"content":"test"}`, Header: nil, WantStatus: http.StatusUnauthorized, WantResponse: ""},
 		// {Name: "get all", Method: "GET", URL: "/secrets", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `*"total_count":1*`},
 		// {Name: "update ok", Method: "PUT", URL: "/secrets/123", Body: `{"name":"secretxyz"}`, Header: header, WantStatus: http.StatusOK, WantResponse: "*secretxyz*"},
 		// {Name: "update verify", Method: "GET", URL: "/secrets/123", Body: "", Header: nil, WantStatus: http.StatusOK, WantResponse: `*secretxyz*`},

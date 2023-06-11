@@ -15,7 +15,7 @@ import (
 func TestRepository(t *testing.T) {
 	logger, _ := log.NewForTest()
 	db := test.DB(t)
-	test.ResetTables(t, db, "secret")
+	test.ResetTables(t, db, "secrets")
 	repo := NewRepository(db, logger)
 
 	ctx := context.Background()
