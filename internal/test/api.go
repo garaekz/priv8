@@ -11,8 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ResponseAssertFunc is a custom function to assert the response.
 type ResponseAssertFunc func(*testing.T, *http.Response)
 
+// APITestCase defines the spec for an API test case.
 type APITestCase struct {
 	Name         string
 	Method, URL  string
