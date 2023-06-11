@@ -45,6 +45,7 @@ jobs:
         uses: morphy2k/revive-action@v2.3.1
         with:
           config: revive.toml
+          exclude: vendor/**/*.go
 
       - name: Build
         run: make build
