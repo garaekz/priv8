@@ -2,7 +2,6 @@ package secret
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/fernet/fernet-go"
@@ -82,7 +81,6 @@ func (s service) Read(ctx context.Context, id string, req ReadSecretRequest) (De
 	ttl := time.Duration(secret.TTL) * time.Second
 	message := fernet.VerifyAndDecrypt([]byte(secret.EncryptedData), ttl, []*fernet.Key{&key})
 	if message == nil {
-		fmt.Println("Invalid token or token is expired :v")
 		return DecodedSecret{Code: 404, Error: "Invalid token or token has expired"}, nil
 	}
 

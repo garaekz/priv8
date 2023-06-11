@@ -13,7 +13,7 @@ type Secret struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// Specify the secret table name.
+// TableName specifies the name of the table.
 func (Secret) TableName() string {
 	return "secrets"
 }
