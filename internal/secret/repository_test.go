@@ -27,7 +27,6 @@ func TestRepository(t *testing.T) {
 	// create
 	err = repo.Create(ctx, entity.Secret{
 		ID:            "test1",
-		Identifier:    "test1",
 		EncryptedData: "secret1",
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),

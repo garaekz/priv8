@@ -1,11 +1,12 @@
 package config
 
 import (
+	"io/ioutil"
+
 	"github.com/garaekz/priv8/pkg/log"
-	"github.com/go-ozzo/ozzo-validation/v4"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/qiangxue/go-env"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 const (
@@ -23,6 +24,8 @@ type Config struct {
 	JWTSigningKey string `yaml:"jwt_signing_key" env:"JWT_SIGNING_KEY,secret"`
 	// JWT expiration in hours. Defaults to 72 hours (3 days)
 	JWTExpiration int `yaml:"jwt_expiration" env:"JWT_EXPIRATION"`
+	// SALT for encrypting the secret. required.
+	SALT string `yaml:"salt" env:"SALT,secret"`
 }
 
 // Validate validates the application configuration.

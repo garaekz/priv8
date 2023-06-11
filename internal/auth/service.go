@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/pkg/log"
-	"time"
 )
 
 // Service encapsulates the authentication logic.

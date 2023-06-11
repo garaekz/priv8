@@ -14,6 +14,7 @@ import (
 	"github.com/garaekz/priv8/internal/config"
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/internal/healthcheck"
+	"github.com/garaekz/priv8/internal/secret"
 	"github.com/garaekz/priv8/pkg/accesslog"
 	"github.com/garaekz/priv8/pkg/dbcontext"
 	"github.com/garaekz/priv8/pkg/log"
@@ -90,6 +91,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	album.RegisterHandlers(rg.Group(""),
 		album.NewService(album.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	secret.RegisterHandlers(rg.Group(""),
+		secret.NewService(secret.NewRepository(db, logger), logger, cfg.SALT),
 		authHandler, logger,
 	)
 

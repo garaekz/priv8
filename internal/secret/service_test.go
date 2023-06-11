@@ -19,9 +19,9 @@ func TestCreateSecretRequest_Validate(t *testing.T) {
 		model     CreateSecretRequest
 		wantError bool
 	}{
-		{"success", CreateSecretRequest{RawData: "test"}, false},
-		{"required", CreateSecretRequest{RawData: ""}, true},
-		{"too long", CreateSecretRequest{RawData: "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"}, true},
+		{"success", CreateSecretRequest{Content: "test"}, false},
+		{"required", CreateSecretRequest{Content: ""}, true},
+		{"too long", CreateSecretRequest{Content: "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -33,7 +33,8 @@ func TestCreateSecretRequest_Validate(t *testing.T) {
 
 func Test_service_CRUD(t *testing.T) {
 	logger, _ := log.NewForTest()
-	s := NewService(&mockRepository{}, logger)
+	salt := "test"
+	s := NewService(&mockRepository{}, logger, salt)
 
 	ctx := context.Background()
 
@@ -42,7 +43,7 @@ func Test_service_CRUD(t *testing.T) {
 	assert.Equal(t, 0, count)
 
 	// successful creation
-	secret, err := s.Create(ctx, CreateSecretRequest{RawData: "test"})
+	secret, err := s.Create(ctx, CreateSecretRequest{Content: "test"})
 	assert.Nil(t, err)
 	assert.NotEmpty(t, secret.ID)
 	id := secret.ID
@@ -51,18 +52,18 @@ func Test_service_CRUD(t *testing.T) {
 	assert.Equal(t, 1, count)
 
 	// validation error in creation
-	_, err = s.Create(ctx, CreateSecretRequest{RawData: ""})
+	_, err = s.Create(ctx, CreateSecretRequest{Content: ""})
 	assert.NotNil(t, err)
 	count, _ = s.Count(ctx)
 	assert.Equal(t, 1, count)
 
 	// unexpected error in creation
-	_, err = s.Create(ctx, CreateSecretRequest{RawData: "error"})
+	_, err = s.Create(ctx, CreateSecretRequest{Content: "error"})
 	assert.Equal(t, errCRUD, err)
 	count, _ = s.Count(ctx)
 	assert.Equal(t, 1, count)
 
-	_, _ = s.Create(ctx, CreateSecretRequest{RawData: "test2"})
+	_, _ = s.Create(ctx, CreateSecretRequest{Content: "test2"})
 
 	// get
 	_, err = s.Get(ctx, "none")
