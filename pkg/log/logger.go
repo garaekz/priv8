@@ -3,11 +3,15 @@ package log
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"math/rand"
+	"net/http"
+	"strings"
+	"time"
+
+	ulid "github.com/oklog/ulid/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
-	"net/http"
 )
 
 // Logger is a logger that supports log levels, context and structured logging.
@@ -84,7 +88,9 @@ func (l *logger) With(ctx context.Context, args ...interface{}) Logger {
 func WithRequest(ctx context.Context, req *http.Request) context.Context {
 	id := getRequestID(req)
 	if id == "" {
-		id = uuid.New().String()
+		entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
+		ms := ulid.Timestamp(time.Now())
+		id = strings.ToLower(ulid.MustNew(ms, entropy).String())
 	}
 	ctx = context.WithValue(ctx, requestIDKey, id)
 	if id := getCorrelationID(req); id != "" {

@@ -20,6 +20,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fernet/fernet-go v0.0.0-20211208181803-9f70042a33ee // indirect
 	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
+	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.uber.org/atomic v1.5.1 // indirect
 	go.uber.org/multierr v1.4.0 // indirect
