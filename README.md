@@ -1,9 +1,9 @@
 # Priv8
 
-[![GoDoc](https://godoc.org/github.com/garaekz/priv8/internal/?status.png)](http://godoc.org/github.com/garaekz/priv8)
-[![Build Status](https://github.com/garaekz/priv8/internal//workflows/build/badge.svg)](https://github.com/garaekz/priv8/actions?query=workflow%3Abuild)
-[![Code Coverage](https://codecov.io/gh/garaekz/priv8/internal//branch/master/graph/badge.svg)](https://codecov.io/gh/garaekz/priv8)
-[![Go Report](https://goreportcard.com/badge/github.com/garaekz/priv8/internal/)](https://goreportcard.com/report/github.com/garaekz/priv8)
+[![GoDoc](https://godoc.org/github.com/garaekz/priv8?status.png)](http://godoc.org/github.com/garaekz/priv8)
+[![Build Status](https://github.com/garaekz/priv8/workflows/build/badge.svg)](https://github.com/garaekz/priv8/actions?query=workflow%3Abuild)
+[![Code Coverage](https://codecov.io/gh/garaekz/priv8/branch/master/graph/badge.svg)](https://codecov.io/gh/garaekz/priv8)
+[![Go Report](https://goreportcard.com/badge/github.com/garaekz/priv8)](https://goreportcard.com/report/github.com/garaekz/priv8)
 
 This starter kit is designed to get you up and running with a project structure optimized for developing
 RESTful API services in Go. It promotes the best practices that follow the [SOLID principles](https://en.wikipedia.org/wiki/SOLID)
