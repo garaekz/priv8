@@ -8,6 +8,7 @@ import (
 	"github.com/garaekz/priv8/internal/entity"
 	"github.com/garaekz/priv8/internal/errors"
 	"github.com/garaekz/priv8/pkg/log"
+	"golang.org/x/oauth2"
 )
 
 // Service encapsulates the authentication logic.
@@ -15,6 +16,7 @@ type Service interface {
 	// authenticate authenticates a user using username and password.
 	// It returns a JWT token if authentication succeeds. Otherwise, an error is returned.
 	Login(ctx context.Context, username, password string) (string, error)
+	SocialAuth(ctx context.Context, provider, code string) (string, error)
 }
 
 // Identity represents an authenticated user identity.
@@ -29,11 +31,12 @@ type service struct {
 	signingKey      string
 	tokenExpiration int
 	logger          log.Logger
+	authProviders   map[string]*oauth2.Config
 }
 
 // NewService creates a new authentication service.
-func NewService(signingKey string, tokenExpiration int, logger log.Logger) Service {
-	return service{signingKey, tokenExpiration, logger}
+func NewService(signingKey string, tokenExpiration int, logger log.Logger, authProviders map[string]*oauth2.Config) Service {
+	return service{signingKey, tokenExpiration, logger, authProviders}
 }
 
 // Login authenticates a user and generates a JWT token if authentication succeeds.
@@ -43,6 +46,25 @@ func (s service) Login(ctx context.Context, username, password string) (string, 
 		return s.generateJWT(identity)
 	}
 	return "", errors.Unauthorized("")
+}
+
+// SocialAuth authenticates a user using a social network (e.g., Facebook) and generates a JWT token if authentication succeeds.
+// Otherwise, an error is returned.
+func (s service) SocialAuth(ctx context.Context, provider, code string) (string, error) {
+	config, ok := s.authProviders[provider]
+
+	if !ok {
+		s.logger.With(ctx).Errorf("Failed to find provider: %s", provider)
+		return "", errors.BadRequest("Provider not supported")
+	}
+
+	token, err := config.Exchange(ctx, code)
+	if err != nil {
+		s.logger.With(ctx).Errorf("failed to exchange code: %v", err)
+		return "", errors.Unauthorized("")
+	}
+
+	return token.AccessToken, nil
 }
 
 // authenticate authenticates a user using username and password.

@@ -2,10 +2,15 @@ package config
 
 import (
 	"io/ioutil"
+	"os"
 
 	"github.com/garaekz/priv8/pkg/log"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/joho/godotenv"
 	"github.com/qiangxue/go-env"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
+	"golang.org/x/oauth2/google"
 	"gopkg.in/yaml.v2"
 )
 
@@ -24,8 +29,9 @@ type Config struct {
 	JWTSigningKey string `yaml:"jwt_signing_key" env:"JWT_SIGNING_KEY,secret"`
 	// JWT expiration in hours. Defaults to 72 hours (3 days)
 	JWTExpiration int `yaml:"jwt_expiration" env:"JWT_EXPIRATION"`
-	// SALT for encrypting the secret. required.
-	SALT string `yaml:"salt" env:"SALT,secret"`
+	// Salt for encrypting the secret. required.
+	Salt          string `yaml:"salt" env:"SALT,secret"`
+	AuthProviders map[string]*oauth2.Config
 }
 
 // Validate validates the application configuration.
@@ -38,10 +44,33 @@ func (c Config) Validate() error {
 
 // Load returns an application configuration which is populated from the given configuration file and environment variables.
 func Load(file string, logger log.Logger) (*Config, error) {
+	err := godotenv.Load(".env")
+	if err != nil {
+		return nil, err
+	}
+
+	var oauth2Configs = map[string]*oauth2.Config{
+		"github": {
+			ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+			ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+			RedirectURL:  os.Getenv("GITHUB_REDIRECT_URL"),
+			Scopes:       []string{"user:email"},
+			Endpoint:     github.Endpoint,
+		},
+		"google": {
+			ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+			ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+			RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+			Scopes:       []string{"profile", "email"},
+			Endpoint:     google.Endpoint,
+		},
+	}
+
 	// default config
 	c := Config{
 		ServerPort:    defaultServerPort,
 		JWTExpiration: defaultJWTExpirationHours,
+		AuthProviders: oauth2Configs,
 	}
 
 	// load from YAML config file

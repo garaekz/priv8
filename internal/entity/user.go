@@ -15,3 +15,8 @@ func (u User) GetID() string {
 func (u User) GetName() string {
 	return u.Name
 }
+
+// TableName specifies the name of the table.
+func (User) TableName() string {
+	return "users"
+}

@@ -95,12 +95,12 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	)
 
 	secret.RegisterHandlers(rg.Group(""),
-		secret.NewService(secret.NewRepository(db, logger), logger, cfg.SALT),
+		secret.NewService(secret.NewRepository(db, logger), logger, cfg.Salt),
 		authHandler, logger,
 	)
 
 	auth.RegisterHandlers(rg.Group(""),
-		auth.NewService(cfg.JWTSigningKey, cfg.JWTExpiration, logger),
+		auth.NewService(cfg.JWTSigningKey, cfg.JWTExpiration, logger, cfg.AuthProviders),
 		logger,
 	)
 
